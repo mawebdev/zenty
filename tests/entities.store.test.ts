@@ -13,14 +13,14 @@ describe('createEntitiesStore', () => {
 
   it('should add a new product', () => {
     const store = createEntitiesStore<Product>({ initialState: [] });
-    store.getState().create({ id: 1, name: 'Laptop' });
+    store.getState().add({ id: 1, name: 'Laptop' });
     expect(store.getState().entities).toHaveLength(1);
     expect(store.getState().loaded).toBe(true);
   });
 
   it('should add multiple products', () => {
     const store = createEntitiesStore<Product>({ initialState: [] });
-    store.getState().createMany([{ id: 1, name: 'Laptop' }, { id: 2, name: 'Phone' }]);
+    store.getState().addMany([{ id: 1, name: 'Laptop' }, { id: 2, name: 'Phone' }]);
     expect(store.getState().entities).toHaveLength(2);
     expect(store.getState().loaded).toBe(true);
   });
@@ -28,8 +28,8 @@ describe('createEntitiesStore', () => {
   it('should not add a duplicate product', () => {
     const store = createEntitiesStore<Product>({ initialState: [] });
     const product = { id: 1, name: 'Laptop' };
-    store.getState().create(product);
-    store.getState().create(product);
+    store.getState().add(product);
+    store.getState().add(product);
     expect(store.getState().entities).toHaveLength(1);
     expect(store.getState().error).toMatch(/already exists/);
   });
