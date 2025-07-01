@@ -22,7 +22,6 @@ export function createEntityStore<T extends { id: string | number }>(
     update: (updated: Partial<T>) =>
       set((state) => {
         if (!state.entity) {
-          console.error("No entity is currently loaded.");
           return state;
         }
 
