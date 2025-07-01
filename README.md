@@ -1,6 +1,6 @@
 # zenty
 
-**Zenty** is a lightweight abstraction layer for [Zustand](https://github.com/pmndrs/zustand), providing reusable and scalable stores for managing single entities and entity collections. It supports both shallow and optional deep merging.
+**Zenty** is a lightweight abstraction layer for [Zustand](https://github.com/pmndrs/zustand), providing reusable and scalable stores for managing single entities and/or entity collections. It supports both shallow and optional deep merging.
 
 ---
 
@@ -15,7 +15,7 @@ npm install zustand zenty
 ## ⚙️ Features
 
 - 🧠 Type-safe Zustand stores for entities and collections
-- 🔄 Built-in CRUD methods (`create`, `update`, `delete`, `clear`)
+- 🔄 Built-in CRUD methods
 - 🧼 Optional `deepMerge` for updating nested objects
 - ⚡️ Minimal and dependency-free (other than Zustand)
 
@@ -56,7 +56,7 @@ const useProductsStore = createEntitiesStore<Product>({
 });
 
 // Add item
-useProductsStore.getState().create({ id: 1, name: 'Laptop' });
+useProductsStore.getState().add({ id: 1, name: 'Laptop' });
 
 // Update by ID
 useProductsStore.getState().update(1, { name: 'Tablet' });
@@ -70,7 +70,7 @@ useProductsStore.getState().clear();
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 ```bash
 npm install
@@ -79,16 +79,16 @@ npm run test
 
 ---
 
-## 🪪 License
+## License
 
 MIT © [Milaim Ajdari](https://github.com/mawebdev)
 
 
 ## Features
 
-- Einfache Zustand-Store-Erstellung für einzelne Entitäten
-- Verwaltung von Entitätensammlungen mit CRUD-Operationen
-- Konfigurierbare Callbacks für individuell angepasstes Verhalten
-- `deepMerge`-Helper zum Zusammenführen verschachtelter Objekte
-- Strikte TypeScript-Typisierung und Jest-Tests
-- Unterstützung von ESM- und CJS-Ausgaben
+- Simple Zustand store creation for single entities
+- Management of entity collections with CRUD operations
+- Configurable callbacks for custom behavior
+- `deepMerge` helper for merging nested objects
+- Strict TypeScript typing and Jest tests
+- Support for ESM and CJS outputs
