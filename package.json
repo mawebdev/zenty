@@ -1,0 +1,47 @@
+{
+  "name": "zenty",
+  "version": "1.0.0",
+  "description": "Zustand entity store for managing single and multiple entities",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint .",
+    "prepublishOnly": "npm run lint && npm run build",
+    "build": "tsup src/index.ts --dts --format esm,cjs"
+  },
+  "keywords": [
+    "zustand",
+    "state",
+    "store",
+    "entity",
+    "crud"
+  ],
+  "author": "Milaim Ajdari",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.30.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "eslint": "^9.30.0",
+    "eslint-plugin-jest": "^29.0.1",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.35.1"
+  },
+  "dependencies": {
+    "zustand": "^4.4.0"
+  }
+}
