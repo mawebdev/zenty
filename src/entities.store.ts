@@ -9,8 +9,8 @@ export function createEntitiesStore<T extends { id: string | number }>(
     loaded: boolean;
     loading: boolean;
     error: string | null;
-    create: (item: T) => void;
-    createMany: (items: T[]) => void;
+    add: (item: T) => void;
+    addMany: (items: T[]) => void;
     update: (uid: string | number, item: Partial<T>) => void;
     updateMany: (items: Partial<T>[]) => void;
     delete: (uid: string | number) => void;
@@ -32,10 +32,10 @@ export function createEntitiesStore<T extends { id: string | number }>(
     setError: (error) => set({ error }),
     setLoading: (loading) => set({ loading }),
 
-    create: (item) =>
+    add: (item) =>
       set((state) => {
-        if (options.create) {
-          return { entities: options.create(item, state), loaded: true, error: null };
+        if (options.add) {
+          return { entities: options.add(item, state), loaded: true, error: null };
         }
         const exists = state.entities.some((e) => e.id === item.id);
         if (exists) {
@@ -44,10 +44,10 @@ export function createEntitiesStore<T extends { id: string | number }>(
         return { entities: [...state.entities, item], loaded: true, error: null };
       }),
 
-    createMany: (items) =>
+    addMany: (items) =>
       set((state) => {
-        if (options.createMany) {
-          return { entities: options.createMany(items, state), loaded: true, error: null };
+        if (options.addMany) {
+          return { entities: options.addMany(items, state), loaded: true, error: null };
         }
         return {
           entities: [...state.entities, ...items],
