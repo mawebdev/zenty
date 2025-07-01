@@ -82,3 +82,13 @@ npm run test
 ## 🪪 License
 
 MIT © [Milaim Ajdari](https://github.com/mawebdev)
+
+
+## Features
+
+- Einfache Zustand-Store-Erstellung für einzelne Entitäten
+- Verwaltung von Entitätensammlungen mit CRUD-Operationen
+- Konfigurierbare Callbacks für individuell angepasstes Verhalten
+- `deepMerge`-Helper zum Zusammenführen verschachtelter Objekte
+- Strikte TypeScript-Typisierung und Jest-Tests
+- Unterstützung von ESM- und CJS-Ausgaben
