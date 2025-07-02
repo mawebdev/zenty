@@ -1,6 +1,6 @@
 {
   "name": "zenty",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Zustand entity store for managing single and multiple entities",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
