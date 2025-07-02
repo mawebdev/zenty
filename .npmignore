@@ -1,0 +1,6 @@
+src/
+tests/
+.idea/
+*.tgz
+*.config.*
+tsconfig*.json
