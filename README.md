@@ -67,6 +67,10 @@ useProductsStore.getState().delete(1);
 // Clear all
 useProductsStore.getState().clear();
 ```
+---
+
+### StackBlitz Example Project
+(https://stackblitz.com/edit/stackblitz-starters-tsj89bm5)
 
 ---
 
