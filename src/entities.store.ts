@@ -1,116 +1,169 @@
 import { create as zustandCreate, StoreApi, UseBoundStore } from 'zustand';
-import { EntitiesStoreOptions } from './types/store.types';
 
-export function createEntitiesStore<T extends { id: string | number }>(
-  options: Partial<EntitiesStoreOptions<T>> = {}
-): UseBoundStore<
-  StoreApi<{
+/**
+ * All the customizable callbacks and initial data for the store.
+ */
+export interface EntitiesStoreOptions<
+    T,
+    K extends keyof T
+> {
+    /** Which field on T is the unique identifier? */
+    idKey: K;
+
+    /** initial list of entities (defaults to []) */
+    initialState?: T[];
+
+    /** optional overrides for each action: receive the args + current state */
+    add?: (item: T, state: EntitiesState<T, K>) => T[];
+    addMany?: (items: T[], state: EntitiesState<T, K>) => T[];
+    update?: (uid: T[K], patch: Partial<T>, state: EntitiesState<T, K>) => T[];
+    updateMany?: (patches: (Pick<T, K> & Partial<T>)[], state: EntitiesState<T, K>) => T[];
+    delete?: (uid: T[K], state: EntitiesState<T, K>) => T[];
+    deleteMany?: (uids: T[K][], state: EntitiesState<T, K>) => T[];
+}
+
+/** Internal shape of your store’s state */
+type EntitiesState<T, K extends keyof T> = {
     entities: T[];
     loaded: boolean;
     loading: boolean;
     error: string | null;
+};
+
+/** Actions your store exposes */
+type EntitiesActions<T, K extends keyof T> = {
     add: (item: T) => void;
     addMany: (items: T[]) => void;
-    update: (uid: string | number, item: Partial<T>) => void;
-    updateMany: (items: Partial<T>[]) => void;
-    delete: (uid: string | number) => void;
-    deleteMany: (uids: (string | number)[]) => void;
+    update: (uid: T[K], patch: Partial<T>) => void;
+    updateMany: (patches: (Pick<T, K> & Partial<T>)[]) => void;
+    delete: (uid: T[K]) => void;
+    deleteMany: (uids: T[K][]) => void;
     clear: () => void;
-    find: (uid: string | number) => T | undefined;
-    has: (uid: string | number) => boolean;
+    find: (uid: T[K]) => T | undefined;
+    has: (uid: T[K]) => boolean;
     replaceAll: (items: T[]) => void;
     setError: (error: string | null) => void;
     setLoading: (loading: boolean) => void;
-  }>
-> {
-  return zustandCreate((set, get) => ({
-    entities: options.initialState ?? [],
-    loaded: false,
-    loading: false,
-    error: null,
+};
 
-    setError: (error) => set({ error }),
-    setLoading: (loading) => set({ loading }),
+/** Overload #1: if T has `id: string|number`, you may omit `idKey` (defaults to "id") */
+export function createEntitiesStore<
+    T extends { id: string | number }
+>(
+    options?: Omit<EntitiesStoreOptions<T, 'id'>, 'idKey'> & { idKey?: 'id' }
+): UseBoundStore<StoreApi<EntitiesState<T, 'id'> & EntitiesActions<T, 'id'>>>;
 
-    add: (item) =>
-      set((state) => {
-        if (options.add) {
-          return { entities: options.add(item, state), loaded: true, error: null };
-        }
-        const exists = state.entities.some((e) => e.id === item.id);
-        if (exists) {
-          return { ...state, error: `Item with id ${item.id} already exists.` };
-        }
-        return { entities: [...state.entities, item], loaded: true, error: null };
-      }),
+/** Overload #2: general case—must pass `idKey`. */
+export function createEntitiesStore<
+    T extends Record<K, string | number>,
+    K extends keyof T
+>(
+    options: EntitiesStoreOptions<T, K>
+): UseBoundStore<StoreApi<EntitiesState<T, K> & EntitiesActions<T, K>>>;
 
-    addMany: (items) =>
-      set((state) => {
-        if (options.addMany) {
-          return { entities: options.addMany(items, state), loaded: true, error: null };
-        }
-        return {
-          entities: [...state.entities, ...items],
-          loaded: true,
-          error: null,
-        };
-      }),
+/** Implementation */
+export function createEntitiesStore(options: any = {}) {
+    // default idKey to "id" if you omitted it
+    const {
+        idKey = 'id',
+        initialState = [],
+        add,
+        addMany,
+        update,
+        updateMany,
+        delete: del,
+        deleteMany,
+    } = options as EntitiesStoreOptions<any, any>;
 
-    update: (uid, patch) =>
-      set((state) => {
-        if (options.update) {
-          return { entities: options.update(uid, patch, state), error: null };
-        }
-        const newEntities = state.entities.map((e) =>
-          e.id === uid ? { ...e, ...patch } : e
-        );
-        return { entities: newEntities, error: null };
-      }),
+    return zustandCreate<EntitiesState<any, any> & EntitiesActions<any, any>>(
+        (set, get) => ({
+            // initial state
+            entities: initialState,
+            loaded: false,
+            loading: false,
+            error: null,
 
-    updateMany: (items) =>
-      set((state) => {
-        if (options.updateMany) {
-          return { entities: options.updateMany(items, state), error: null };
-        }
-        const newEntities = state.entities.map((e) => {
-          const p = items.find((i) => i.id === e.id);
-          return p ? { ...e, ...p } : e;
-        });
-        return { entities: newEntities, error: null };
-      }),
+            setError: (error) => set({ error }),
+            setLoading: (loading) => set({ loading }),
 
-    delete: (uid) =>
-      set((state) => {
-        if (options.delete) {
-          return { entities: options.delete(uid, state), error: null };
-        }
-        return { entities: state.entities.filter((e) => e.id !== uid), error: null };
-      }),
+            add: (item) =>
+                set((state) => ({
+                    entities: add
+                        ? add(item, state)
+                        : state.entities.some((e) => e[idKey] === item[idKey])
+                            ? state.entities
+                            : [...state.entities, item],
+                    loaded: true,
+                    error: add
+                        ? null
+                        : state.entities.some((e) => e[idKey] === item[idKey])
+                            ? `Item with ${String(idKey)}=${item[idKey]} already exists.`
+                            : null,
+                })),
 
-    deleteMany: (uids) =>
-      set((state) => {
-        if (options.deleteMany) {
-          return { entities: options.deleteMany(uids, state), error: null };
-        }
-        return { entities: state.entities.filter((e) => !uids.includes(e.id)), error: null };
-      }),
+            addMany: (items: any[]) =>
+                set((state) => ({
+                    entities: addMany
+                        ? addMany(items, state)
+                        : [...state.entities, ...items],
+                    loaded: true,
+                    error: null,
+                })),
 
-    clear: () =>
-      set(() => ({
-        entities: [],
-        loaded: false,
-        error: null,
-      })),
+            update: (uid, patch) =>
+                set((state) => ({
+                    entities: update
+                        ? update(uid, patch, state)
+                        : state.entities.map((e) =>
+                            e[idKey] === uid ? { ...e, ...patch } : e
+                        ),
+                    error: null,
+                })),
 
-    find: (uid) => get().entities.find((e) => e.id === uid),
+            updateMany: (patches: any[]) =>
+                set((state) => ({
+                    entities: updateMany
+                        ? updateMany(patches, state)
+                        : state.entities.map((e) => {
+                            const p = patches.find((x) => x[idKey] === e[idKey]);
+                            return p ? { ...e, ...p } : e;
+                        }),
+                    error: null,
+                })),
 
-    has: (uid) => get().entities.some((e) => e.id === uid),
+            delete: (uid) =>
+                set((state) => ({
+                    entities: del
+                        ? del(uid, state)
+                        : state.entities.filter((e) => e[idKey] !== uid),
+                    error: null,
+                })),
 
-    replaceAll: (items) =>
-      set(() => ({
-        entities: items,
-        loaded: true,
-        error: null,
-      })),
-  }));
+            deleteMany: (uids) =>
+                set((state) => ({
+                    entities: deleteMany
+                        ? deleteMany(uids, state)
+                        : state.entities.filter((e) => !uids.includes(e[idKey])),
+                    error: null,
+                })),
+
+            clear: () =>
+                set({
+                    entities: [],
+                    loaded: false,
+                    error: null,
+                }),
+
+            find: (uid) => get().entities.find((e) => e[idKey] === uid),
+
+            has: (uid) => get().entities.some((e) => e[idKey] === uid),
+
+            replaceAll: (items: any[]) =>
+                set({
+                    entities: items,
+                    loaded: true,
+                    error: null,
+                }),
+        })
+    );
 }
