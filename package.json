@@ -5,6 +5,15 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mawebdev/zenty",
+    "directory": "packages/zenty"
+  },
+  "bugs": {
+    "url": "https://github.com/mawebdev/zenty/issues"
+  },
+  "homepage": "https://linkedin.com/in/milaim",
   "exports": {
     ".": {
       "import": "./dist/index.js",
