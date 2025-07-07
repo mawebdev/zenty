@@ -1,40 +1,75 @@
 import { create as zustandCreate, StoreApi, UseBoundStore } from 'zustand';
 import { deepMerge } from './helpers/deep-merge.helper';
-import { EntityStoreOptions } from './types/store.types';
 
-export function createEntityStore<T extends { id: string | number }>(
-  options: EntityStoreOptions<T>
-): UseBoundStore<
-  StoreApi<{
-    entity: T | null;
-    loaded: boolean;
-    set: (entity: T) => void;
-    update: (updated: Partial<T>) => void;
-    clear: () => void;
-  }>
+/** Base options (you normally always have to pass `idKey`) */
+export interface EntityStoreOptions<
+    T,
+    K extends keyof T
 > {
-  return zustandCreate((set) => ({
-    entity: options.initialState,
-    loaded: options.initialState !== null,
+    /** The field on T which holds its unique identifier */
+    idKey: K;
+    initialState: T | null;
+    deepMerge?: boolean;
+}
 
-    set: (entity: T) => set({ entity, loaded: true }),
+/**
+ * Overload #1: when T has an `id` property, you can omit `idKey`.
+ * `idKey` is effectively defaulted to `"id"`.
+ */
+export function createEntityStore<
+    T extends { id: string | number }
+>(
+    options: Omit<EntityStoreOptions<T, 'id'>, 'idKey'> & { idKey?: 'id' }
+): UseBoundStore<
+    StoreApi<{
+        entity: T | null;
+        loaded: boolean;
+        set: (entity: T) => void;
+        update: (updated: Partial<T>) => void;
+        clear: () => void;
+    }>
+>;
 
-    update: (updated: Partial<T>) =>
-      set((state) => {
-        if (!state.entity) {
-          return state;
-        }
+/**
+ * Overload #2: the general case—must explicitly pass `idKey`.
+ */
+export function createEntityStore<
+    T extends Record<K, string | number>,
+    K extends keyof T
+>(
+    options: EntityStoreOptions<T, K>
+): UseBoundStore<
+    StoreApi<{
+        entity: T | null;
+        loaded: boolean;
+        set: (entity: T) => void;
+        update: (updated: Partial<T>) => void;
+        clear: () => void;
+    }>
+>;
 
-        const newEntity = options.deepMerge
-          ? deepMerge(state.entity, updated)
-          : { ...state.entity, ...updated };
+/** Implementation */
+export function createEntityStore(options: any) {
+    const {
+        initialState,
+        deepMerge: shouldDeepMerge = false
+    } = options;
 
-        return {
-          entity: newEntity,
-          loaded: true,
-        };
-      }),
+    return zustandCreate((set) => ({
+        entity: initialState,
+        loaded: initialState !== null,
 
-    clear: () => set({ entity: null, loaded: false }),
-  }));
+        set: (entity: any) => set({ entity, loaded: true }),
+
+        update: (updated: Partial<any>) =>
+            set((state: any) => {
+                if (!state.entity) return state;
+                const newEntity = shouldDeepMerge
+                    ? deepMerge(state.entity, updated)
+                    : { ...state.entity, ...updated };
+                return { entity: newEntity, loaded: true };
+            }),
+
+        clear: () => set({ entity: null, loaded: false }),
+    }));
 }
