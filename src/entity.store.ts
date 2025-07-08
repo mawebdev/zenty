@@ -42,9 +42,13 @@ export function createEntityStore<
     StoreApi<{
         entity: T | null;
         loaded: boolean;
+        loading: boolean;
+        error: string | null;
         set: (entity: T) => void;
         update: (updated: Partial<T>) => void;
         clear: () => void;
+        setError: (error: string | null) => void;
+        setLoading: (loading: boolean) => void;
     }>
 >;
 
@@ -58,6 +62,11 @@ export function createEntityStore(options: any) {
     return zustandCreate((set) => ({
         entity: initialState,
         loaded: initialState !== null,
+        loading: false,
+        error: null,
+
+        setError: (error: string | null) => set({ error }),
+        setLoading: (loading: boolean) => set({ loading }),
 
         set: (entity: any) => set({ entity, loaded: true }),
 
