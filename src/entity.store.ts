@@ -1,43 +1,18 @@
 import { create as zustandCreate, StoreApi, UseBoundStore } from 'zustand';
 import { deepMerge } from './helpers/deep-merge.helper';
 
-/** Base options (you normally always have to pass `idKey`) */
-export interface EntityStoreOptions<
-    T,
-    K extends keyof T
-> {
-    /** The field on T which holds its unique identifier */
-    idKey: K;
-    initialState: T | null;
+/**
+ * A simple store for a single entity of type T.
+ * @param initialState - The initial entity state (defaults to null).
+ * @param deepMerge - Whether updates should deep merge into the existing entity (defaults to false).
+ */
+export interface EntityStoreOptions<T> {
+    initialState?: T | null;
     deepMerge?: boolean;
 }
 
-/**
- * Overload #1: when T has an `id` property, you can omit `idKey`.
- * `idKey` is effectively defaulted to `"id"`.
- */
-export function createEntityStore<
-    T extends { id: string | number }
->(
-    options: Omit<EntityStoreOptions<T, 'id'>, 'idKey'> & { idKey?: 'id' }
-): UseBoundStore<
-    StoreApi<{
-        entity: T | null;
-        loaded: boolean;
-        set: (entity: T) => void;
-        update: (updated: Partial<T>) => void;
-        clear: () => void;
-    }>
->;
-
-/**
- * Overload #2: the general case—must explicitly pass `idKey`.
- */
-export function createEntityStore<
-    T extends Record<K, string | number>,
-    K extends keyof T
->(
-    options: EntityStoreOptions<T, K>
+export function createEntityStore<T>(
+    options: EntityStoreOptions<T> = {}
 ): UseBoundStore<
     StoreApi<{
         entity: T | null;
@@ -50,14 +25,8 @@ export function createEntityStore<
         setError: (error: string | null) => void;
         setLoading: (loading: boolean) => void;
     }>
->;
-
-/** Implementation */
-export function createEntityStore(options: any) {
-    const {
-        initialState,
-        deepMerge: shouldDeepMerge = false
-    } = options;
+> {
+    const { initialState = null, deepMerge: shouldDeepMerge = false } = options;
 
     return zustandCreate((set) => ({
         entity: initialState,
@@ -68,9 +37,9 @@ export function createEntityStore(options: any) {
         setError: (error: string | null) => set({ error }),
         setLoading: (loading: boolean) => set({ loading }),
 
-        set: (entity: any) => set({ entity, loaded: true }),
+        set: (entity: T) => set({ entity, loaded: true }),
 
-        update: (updated: Partial<any>) =>
+        update: (updated: Partial<T>) =>
             set((state: any) => {
                 if (!state.entity) return state;
                 const newEntity = shouldDeepMerge
