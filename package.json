@@ -7,13 +7,13 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mawebdev/zenty",
+    "url": "https://github.com/zentylib/zenty",
     "directory": "packages/zenty"
   },
   "bugs": {
-    "url": "https://github.com/mawebdev/zenty/issues"
+    "url": "https://github.com/zentilib/zenty/issues"
   },
-  "homepage": "https://linkedin.com/in/milaim",
+  "homepage": "https://zentylib.com",
   "exports": {
     ".": {
       "import": "./dist/index.js",
