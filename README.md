@@ -2,7 +2,7 @@
 
 Zenty is a powerful Zustand-based library that simplifies CRUD operations with elegant state management. It provides two main store creators for different use cases.
 
-For more examples and advanced usage, visit our [GitHub repository](https://github.com/zentylib/zenty) or try our [interactive demo](https://zentylib.com).
+For more examples and advanced usage, visit our <a href="https://github.com/zentylib/zenty" target="_blank" rel="noopener noreferrer">GitHub repository</a> or try our <a href="https://zentylib.com" target="_blank" rel="noopener noreferrer">interactive demo</a>.
 
 ## Table of Contents
 
