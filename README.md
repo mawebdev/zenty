@@ -414,3 +414,6 @@ Zenty is built with TypeScript and provides full type safety:
 - **Overloads**: Function overloads for different use cases
 - **Strict Typing**: All actions and state are strictly typed
 
+## Developers
+Zenty is developed and maintained by <a href="https://linkedin.com/in/milaim">Milaim Ajdari</a>
+and <a href="https://www.linkedin.com/in/leonshabani/">Leon Shabani</a>.
